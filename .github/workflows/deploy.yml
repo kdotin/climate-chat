@@ -1,0 +1,31 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm test
+    - name: 'Deploy to DO'
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.164.90.149.116 }}
+        username: ${{ secrets.root }}
+        key: ${{ secrets.k1.pub }}
+        script: 'cd your-app-directory && git pull && npm install && pm2 restart all' 
